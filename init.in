@@ -1,0 +1,532 @@
+#!/bin/sh
+# Init script for custom LFS Live ISO - Coreutils version (no BusyBox)
+# Auto-detect boot media, robust /proc mount handling
+
+PATH=/usr/bin:/usr/sbin:/bin:/sbin
+export PATH
+
+# Parse cmdline early for debug
+DEBUG=false
+rootdelay=
+
+log_msg() {
+  local msg="[INIT] $*"
+  echo "$msg" > /dev/kmsg 2>/dev/null || true
+  echo "$msg"
+}
+
+problem() {
+  log_msg "ERROR: Problem detected!"
+  printf "\nEncountered a problem!\nDropping to shell...\n\n"
+  /bin/sh
+}
+
+# Auto-detect boot device by scanning block devices and checking for squashfs file
+find_boot_device() {
+  local timeout=90
+  local count=0
+  local mnt_tmp="/tmpmnt"
+
+  log_msg "Auto-detecting boot media (timeout: ${timeout}s)..."
+  log_msg "Looking for /boot/lfs.squashfs on available devices..."
+
+  mkdir -p "$mnt_tmp" 2>/dev/null
+
+  while [ $count -lt $timeout ]; do
+    for dev in $(lsblk -pnlo NAME); do
+      if [ -b "$dev" ]; then
+        log_msg "Probing device $dev..."
+
+        if mount -t auto -o ro "$dev" "$mnt_tmp" 2>/dev/null; then
+          if [ -f "$mnt_tmp/boot/lfs.squashfs" ]; then
+            device="$dev"
+            log_msg "Boot media DETECTED on $dev (found /boot/lfs.squashfs)"
+            # Keep mounted, move later
+            return 0
+          else
+            umount "$mnt_tmp" 2>/dev/null
+          fi
+        fi
+      fi
+    done
+
+    sleep 2
+    count=$((count + 2))
+    [ $((count % 10)) -eq 0 ] && log_msg "Still scanning... (${count}s)"
+  done
+
+  log_msg "ERROR: No valid boot media found after ${timeout}s"
+  blkid
+  lsblk -f 2>/dev/null || true
+  problem
+  return 1
+}
+
+# Create User
+
+ensure_users() {
+    log_msg "Ensuring user database exists in overlay..."
+    
+    # **INI YANG BENAR**: Buat di overlay (/.root), BUKAN di squashfs
+    
+    # Jika tidak ada passwd di overlay, buat minimal
+    if [ ! -f /.root/etc/passwd ] || [ ! -s /.root/etc/passwd ]; then
+        log_msg "Creating minimal /etc/passwd in overlay..."
+        cat > /.root/etc/passwd << 'EOF'
+root:x:0:0:root:/root:/bin/bash
+leakos:x:0:0:Live User:/home/leakos:/bin/bash
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+EOF
+    fi
+    
+    # Group file
+    if [ ! -f /.root/etc/group ] || [ ! -s /.root/etc/group ]; then
+        log_msg "Creating minimal /etc/group in overlay..."
+        cat > /.root/etc/group << 'EOF'
+root:x:0:
+leakos:x:0:
+nogroup:x:65534:
+EOF
+    fi
+    
+    # Shadow file
+    if [ ! -f /.root/etc/shadow ] || [ ! -s /.root/etc/shadow ]; then
+        log_msg "Creating minimal /etc/shadow in overlay..."
+        cat > /.root/etc/shadow << 'EOF'
+root:*:19490:0:99999:7:::
+leakos::19490:0:99999:7:::
+nobody:*:19490:0:99999:7:::
+EOF
+        chmod 600 /.root/etc/shadow
+    fi
+
+   mkdir -p /.root/etc/pam.d
+
+cat > /.root/etc/pam.d/common-auth << 'EOF'
+auth    sufficient      pam_unix.so nullok
+auth    required        pam_deny.so
+EOF
+    
+    # Buat home directory untuk live user dengan semua folder standard
+    if [ ! -d /.root/home/leakos ]; then
+        log_msg "Creating home directory for live user with standard folders..."
+        mkdir -p /.root/home/leakos
+        
+        # **FOLDER STANDARD XDG USER DIRECTORY**
+        mkdir -p /.root/home/leakos/{Desktop,Documents,Downloads,Music,Pictures,Videos,Public,Templates}
+        
+        # **FOLDER STANDARD LAINNYA**
+        mkdir -p /.root/home/leakos/{.local/share,.config,.cache,.ssh,.gnupg}
+        
+        # **FOLDER APLIKASI UMUM**
+        mkdir -p /.root/home/leakos/{temp,bin}
+        
+        # Set permissions
+        chown -R 1000:1000 /.root/home/leakos
+        chmod 700 /.root/home/leakos
+        chmod 755 /.root/home/leakos/{Desktop,Documents,Downloads,Music,Pictures,Videos,Public,Templates}
+        chmod 700 /.root/home/leakos/{.ssh,.gnupg}
+        
+        log_msg "Created standard folders for live user"
+    else
+        # Jika home sudah ada, pastikan folder-folder standard ada
+        log_msg "Home directory exists, ensuring standard folders..."
+        
+        for folder in Desktop Documents Downloads Music Pictures Videos Public Templates; do
+            if [ ! -d "/.root/home/leakos/$folder" ]; then
+                mkdir -p "/.root/home/leakos/$folder"
+                chown 1000:1000 "/.root/home/leakos/$folder"
+                chmod 755 "/.root/home/leakos/$folder"
+            fi
+        done
+        fi
+    
+    # **BUAT FILE SKEL DEFAULT** (template untuk user baru)
+    if [ ! -d /.root/etc/skel ]; then
+        log_msg "Creating /etc/skel with standard folders..."
+        mkdir -p /.root/etc/skel
+        
+        # Folder standard untuk semua user baru
+        mkdir -p /.root/etc/skel/{Desktop,Documents,Downloads,Music,Pictures,Videos,Public,Templates}
+        mkdir -p /.root/etc/skel/{.local/share,.config,.cache}
+        
+        # Buat file contoh
+        cat > /.root/etc/skel/README.txt << 'EOF'
+Welcome to your new LFS system!
+
+This is your home directory. Standard folders have been created:
+- Desktop    : For desktop files
+- Documents  : For documents
+- Downloads  : For downloaded files
+- Music      : For music files
+- Pictures   : For images
+- Videos     : For video files
+- Public     : For shared files
+- Templates  : For document templates
+
+Enjoy your LFS experience!
+EOF
+        
+        # File konfigurasi bash default
+        cat > /.root/etc/skel/.bashrc << 'EOF'
+# ~/.bashrc: executed by bash for non-login shells.
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# don't put duplicate lines or lines starting with space in the history.
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+        color_prompt=yes
+    else
+        color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+fi
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# Alias definitions.
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+EOF
+        
+        # File profile default
+        cat > /.root/etc/skel/.profile << 'EOF'
+# ~/.profile: executed by the command interpreter for login shells.
+# This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
+# exists.
+# see /usr/share/doc/bash/examples/startup-files for examples.
+# the files are located in the bash-doc package.
+
+# the default umask is set in /etc/profile; for setting the umask
+# for ssh logins, install and configure the libpam-umask package.
+#umask 022
+
+# if running bash
+if [ -n "$BASH_VERSION" ]; then
+    # include .bashrc if it exists
+    if [ -f "$HOME/.bashrc" ]; then
+        . "$HOME/.bashrc"
+    fi
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+EOF
+        
+        chmod 644 /.root/etc/skel/.bashrc /.root/etc/skel/.profile
+        log_msg "/etc/skel created with standard configuration"
+    fi
+    
+    # **BUAT XDG USER DIRS CONFIGURATION**
+    if [ ! -f /.root/home/leakos/.config/user-dirs.dirs ]; then
+        log_msg "Creating XDG user directories configuration..."
+        mkdir -p /.root/home/leakos/.config
+        cat > /.root/home/leakos/.config/user-dirs.dirs << 'EOF'
+# This file is written by xdg-user-dirs-update
+# If you want to change or add directories, just edit the line you're
+# interested in.
+
+# All localizations will respect these directories
+XDG_DESKTOP_DIR="$HOME/Desktop"
+XDG_DOCUMENTS_DIR="$HOME/Documents"
+XDG_DOWNLOAD_DIR="$HOME/Downloads"
+XDG_MUSIC_DIR="$HOME/Music"
+XDG_PICTURES_DIR="$HOME/Pictures"
+XDG_VIDEOS_DIR="$HOME/Videos"
+XDG_PUBLICSHARE_DIR="$HOME/Public"
+XDG_TEMPLATES_DIR="$HOME/Templates"
+EOF
+        chown -R 1000:1000 /.root/home/leakos/.config
+    fi
+    
+    # **BUAT XDG USER DIRS LOCALE** (English)
+    if [ ! -f /.root/home/leakos/.config/user-dirs.locale ]; then
+        echo "en_US" > /.root/home/leakos/.config/user-dirs.locale
+        chown 1000:1000 /.root/home/leakos/.config/user-dirs.locale
+    fi
+    
+    # **COPY SKEL KE HOME LIVE USER** (jika home kosong)
+    if [ ! -f /.root/home/leakos/.bashrc ]; then
+        log_msg "Copying skel files to live user home..."
+        cp -r /.root/etc/skel/. /.root/home/leakos/ 2>/dev/null || true
+        chown -R 1000:1000 /.root/home/leakos/
+    fi
+
+    # -----------------------------------------------------------------
+    # Tambahkan .Xresources default khusus untuk user live
+    # -----------------------------------------------------------------
+    if [ ! -f /.root/home/leakos/.Xresources ]; then
+        log_msg "Menambahkan .Xresources default ke /home/live ..."
+
+        cat > /.root/home/leakos/.Xresources << 'EOF'
+! ~/.Xresources - konfigurasi X resources untuk user live
+! Load otomatis via .xprofile atau jalankan manual: xrdb -merge ~/.Xresources
+
+! generic
+*foreground:                  #00FF00
+*background:                  #000000
+
+! urxvt
+urxvt.font:                   xft:xos4 Terminus:size=10:style=bold:antialias=true:hinting=true
+urxvt.url-launcher:           /usr/bin/xdg-open
+urxvt.matcher.button:         1
+urxvt.scrollBar:              false
+urxvt.termName:               xterm-256color
+urxvt.saveLines:              10000
+urxvt.inheritPixmap:          true
+urxvt.shading:                20
+urxvt.clipboard.autocopy:     true
+urxvt.perl-ext-common:        default,selection-to-clipboard,pasta,matcher,keyboard-select,resize-font,font
+urxvt.keysym.M-u:             perl:url-select:select_next
+urxvt.transparent:            true
+urxvt.buffered:               true
+urxvt.jumpScroll:             false
+urxvt.scrollTtyKeypress:      true
+urxvt.scrollTtyOutput:        false
+urxvt.scrollWithBuffer:       false
+urxvt.scrollstyle:            plain
+urxvt.secondaryScroll:        false
+urxvt.xftAntialias:           true
+!urxvt.color4:                 RoyalBlue
+urxvt.color12:                RoyalBlue
+urxvt.matcher.rend.0:         Bold fg6
+urxvt.cursorBlink:            false
+urxvt.cursorColor:            RoyalBlue
+urxvt.mapAlert:               true
+urxvt.pointerBlank:           true
+urxvt.resource:               value
+urxvt.iso14755:               false
+urxvt.iso14755_52:            false
+URxvt.geometry:               55x24
+!URxvt*iconFile:              false
+! xterm
+xterm*VT100*geometry:         80x30
+xterm*faceName:               xft:Terminus:size=13:style=Bold
+xterm*faceSize:               13
+xterm*renderFont:             true
+XTerm*utf8:                   always
+xterm*utf8Title:              true
+xterm*locale:                 true
+xterm*cursorColor:            #fff
+xterm*cursorBlink:            false
+xterm*selectToClipboard:      true
+xterm*SaveLines:              10000
+xterm*transparent:            true
+XTerm*trimSelection:          true
+XTerm*cutNewline:             false
+XTerm*highlightSelection:     true
+xterm*foreground:             #ffffff
+
+
+! cursor
+Xcursor.theme:                Adwaita
+Xcursor.size:                 12
+
+! xft
+xft.antialias:                true
+EOF
+
+        chown 1000:1000 /.root/home/leakos/.Xresources
+        chmod 644 /.root/home/leakos/.Xresources
+        log_msg ".Xresources telah ditambahkan"
+    fi
+    
+    log_msg "User setup complete with all standard folders"
+}
+
+
+do_mount_root() {
+  log_msg "Mounting root filesystem (squashfs + overlay)"
+
+  # Load key modules
+  modprobe -q squashfs || true 
+  modprobe -q overlay || true
+  modprobe -q loop || true
+  modprobe -q vfat || true
+  modprobe -q iso9660 || true
+  modprobe -q usb-storage || true
+  modprobe -q sr_mod || true
+  modprobe -q xhci_hcd || true
+  modprobe -q ehci_hcd || true
+  modprobe -q uhci_hcd || true
+  modprobe -q vboxvideo || true
+  modprobe -q virtio_gpu || true
+  modprobe -q vmwgfx || true
+  modprobe -q drm || true
+  modprobe -q realtek || true
+  modprobe -q rtlwifi || true
+  modprobe -q iwlwifi || true
+  modprobe -q cfg80211 || true
+  modprobe -q mac80211 || true
+  modprobe -q virtio_net || true
+  modprobe -q rtl8192ce || true
+  modprobe -q 8188eu || true
+  modprobe -q loop max_loop=64 || true
+  modprobe -q dm_mod || true
+  modprobe -q dm-mod || true
+  modprobe -q iwlwifi || true
+  modprobe -q rtl8xxxu || true
+  modprobe -q ath9k || true
+  mkdir -p /.root /mnt /squash /cow/mod /cow/buffer
+
+  # Ensure loop device
+  [ -b /dev/loop0 ] || mknod /dev/loop0 b 7 0
+
+  # Auto-detect and mount boot media
+  if ! find_boot_device; then
+    return 1
+  fi
+
+  # Move or mount to /mnt
+  if mountpoint -q "$mnt_tmp"; then
+    mount --move "$mnt_tmp" /mnt || problem
+  else
+    mount -t auto "$device" /mnt || { log_msg "Mount $device failed"; problem; }
+  fi
+  log_msg "Boot media mounted at /mnt"
+
+  # Verify squashfs file
+  [ -f /mnt/boot/lfs.squashfs ] || { log_msg "lfs.squashfs missing!"; ls -la /mnt/boot/; problem; }
+
+  # Mount squashfs (read-only)
+  mount -t squashfs -o loop /mnt/boot/lfs.squashfs /squash || problem
+  log_msg "squashfs mounted at /squash"
+
+  # Tmpfs for cow/overlay
+  mount -t tmpfs tmpfs /cow || problem
+
+  mkdir -p /cow/mod /cow/buffer
+
+  # Overlay mount
+  mount -t overlay -o lowerdir=/squash,upperdir=/cow/mod,workdir=/cow/buffer overlay /.root || problem
+  log_msg "Overlay mounted at /.root"
+
+  ensure_users
+
+  # Bind mounts for persistence/access
+  mkdir -p /.root/mnt/changes /.root/mnt/container
+  mount --bind /cow/mod /.root/mnt/changes
+  mount --bind /mnt /.root/mnt/container
+
+  log_msg "Root filesystem prepared!"
+}
+
+
+
+# ===================== MAIN =====================
+
+log_msg "=== LeakOS Live ISO Init Starting ==="
+
+# Create essential dirs
+mkdir -p /proc /sys /dev /run /tmp 2>/dev/null
+
+# Mount pseudo-fs with strict checks
+log_msg "Mounting pseudo-filesystems..."
+
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || { log_msg "devtmpfs failed"; /bin/sh; }
+mount -t proc proc /proc || { log_msg "CRITICAL: proc mount failed!"; /bin/sh; }
+mount -t sysfs sysfs /sys 2>/dev/null || log_msg "sysfs mount failed (non-fatal)"
+mount -t tmpfs tmpfs /run 2>/dev/null || log_msg "tmpfs /run failed (non-fatal)"
+mkdir -p /dev/pts
+mount -t devpts devpts /dev/pts -o gid=5,mode=620 || log_msg "devpts mount failed"
+
+# Critical: Ensure /proc/cmdline exists
+if [ ! -r /proc/cmdline ]; then
+  log_msg "WARNING: /proc/cmdline missing - remounting /proc"
+  umount /proc 2>/dev/null
+  mount -t proc proc /proc || { log_msg "Cannot remount /proc!"; /bin/sh; }
+fi
+
+#mount -t devpts devpts /.root/dev/pts || true
+
+# Read cmdline safely
+cmdline=$(cat /proc/cmdline 2>/dev/null || echo "")
+log_msg "Kernel cmdline: $cmdline"
+
+# Parse parameters
+for param in $cmdline; do
+  case $param in
+    debug) DEBUG=true ;;
+    rootdelay=*) rootdelay=${param#rootdelay=} ;;
+  esac
+done
+
+
+# Start udev
+log_msg "Starting udev..."
+UDEVD=""
+for p in /sbin/udevd /usr/sbin/udevd /lib/udev/udevd /usr/lib/udev/udevd; do
+  [ -x "$p" ] && UDEVD="$p" && break
+done
+[ -z "$UDEVD" ] && { log_msg "udevd not found"; problem; }
+udevadm trigger --action=add 
+$UDEVD --daemon --resolve-names=never
+udevadm trigger
+udevadm settle --timeout=30
+
+log_msg "udev ready"
+
+# Apply rootdelay
+[ -n "$rootdelay" ] && { log_msg "rootdelay ${rootdelay}s"; sleep "$rootdelay"; }
+
+# Mount root
+do_mount_root || problem
+
+# Cleanup udev
+log_msg "Stopping udev..."
+killall -w udevd 2>/dev/null || true
+
+# Switch root
+log_msg "Switching to new root..."
+exec switch_root /.root /sbin/init "$@"
+
+# Fallback if switch fails
+log_msg "FATAL: switch_root failed!"
+problem

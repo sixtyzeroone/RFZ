@@ -1,0 +1,187 @@
+#!/bin/bash
+# mkinitramfs for LFS Live ISO
+
+copy()
+{
+  local file
+
+  if [ "$2" = "lib" ]; then
+    file=$(PATH=/usr/lib type -p $1 2>/dev/null)
+  else
+    file=$(type -p $1 2>/dev/null)
+  fi
+
+  if [ -n "$file" ] ; then
+    cp "$file" "$WDIR/usr/$2"
+  else
+    echo "Warning: Missing file: $1"
+  fi
+}
+
+if [ -z "$1" ] ; then
+  INITRAMFS_FILE=initrd.img-no-kmods
+else
+  KERNEL_VERSION=$1
+  INITRAMFS_FILE=initrd.img-$KERNEL_VERSION
+fi
+
+if [ -n "$KERNEL_VERSION" ] && [ ! -d "/lib/modules/$1" ] ; then
+  echo "ERROR: No modules directory: /lib/modules/$1"
+  exit 1
+fi
+
+printf "Creating $INITRAMFS_FILE... "
+
+binfiles="sh cat cp dd killall ls mkdir mknod mount lsblk nano grep mountpoint su chmod chown"
+binfiles="$binfiles umount sed sleep ln rm uname"
+binfiles="$binfiles readlink basename"
+
+if [ -x /usr/bin/udevadm ] ; then binfiles="$binfiles udevadm"; fi
+if [ -x /sbin/udevadm ] ; then binfiles="$binfiles udevadm"; fi
+
+sbinfiles="modprobe blkid switch_root"
+
+for f in udevd udevadm; do
+  if [ -x /usr/sbin/$f ] ; then sbinfiles="$sbinfiles $f"; fi
+  if [ -x /sbin/$f ] ; then sbinfiles="$sbinfiles $f"; fi
+done
+
+unsorted=$(mktemp /tmp/unsorted.XXXXXXXXXX)
+
+DATADIR=/usr/share/mkinitramfs
+INITIN=init.in
+
+WDIR=$(mktemp -d /tmp/initrd-work.XXXXXXXXXX)
+
+mkdir -p $WDIR/{dev,run,sys,proc,usr/{bin,lib/{firmware,modules},sbin}}
+
+mkdir -p $WDIR/etc/{modprobe.d,udev/rules.d}
+touch $WDIR/etc/modprobe.d/modprobe.conf
+
+ln -s usr/bin  $WDIR/bin
+ln -s usr/lib  $WDIR/lib
+ln -s usr/sbin $WDIR/sbin
+ln -s lib      $WDIR/lib64
+
+mknod -m 640 $WDIR/dev/console c 5 1
+mknod -m 664 $WDIR/dev/null    c 1 3
+
+if [ -f /etc/udev/udev.conf ]; then
+  cp /etc/udev/udev.conf $WDIR/etc/udev/udev.conf
+fi
+
+# FIXED: Copy udev rules - proper syntax
+if [ -d /etc/udev/rules.d ]; then
+  for file in /etc/udev/rules.d/*.rules; do
+    if [ -f "$file" ]; then
+      cp "$file" "$WDIR/etc/udev/rules.d/"
+    fi
+  done
+fi
+
+# Copy firmware if exists (optional)
+if [ -d /lib/firmware ]; then
+  cp -a /lib/firmware $WDIR/usr/lib/ 2>/dev/null || true
+fi
+
+install -m0755 $DATADIR/$INITIN $WDIR/init
+
+
+if [ -n "$KERNEL_VERSION" ] ; then
+  if [ -x /usr/bin/kmod ] ; then
+    binfiles="$binfiles kmod"
+  else
+    binfiles="$binfiles lsmod"
+    sbinfiles="$sbinfiles insmod"
+  fi
+fi
+
+# Install binaries
+for f in $binfiles ; do
+  if [ -x /usr/bin/$f ]; then
+    ldd /usr/bin/$f 2>/dev/null | sed "s/\t//" | cut -d " " -f1 >> $unsorted
+    copy /usr/bin/$f bin
+  elif [ -x /bin/$f ]; then
+    ldd /bin/$f 2>/dev/null | sed "s/\t//" | cut -d " " -f1 >> $unsorted
+    copy /bin/$f bin
+  fi
+done
+
+
+for f in $sbinfiles ; do
+  if [ -x /usr/sbin/$f ]; then
+    ldd /usr/sbin/$f 2>/dev/null | sed "s/\t//" | cut -d " " -f1 >> $unsorted
+    copy $f sbin
+  elif [ -x /sbin/$f ]; then
+    ldd /sbin/$f 2>/dev/null | sed "s/\t//" | cut -d " " -f1 >> $unsorted
+    copy $f sbin
+  fi
+done
+
+# Add udevd libraries
+if [ -x /usr/lib/udev/udevd ] ; then
+  ldd /usr/lib/udev/udevd 2>/dev/null | sed "s/\t//" | cut -d " " -f1 >> $unsorted
+elif [ -x /lib/udev/udevd ] ; then
+  ldd /lib/udev/udevd 2>/dev/null | sed "s/\t//" | cut -d " " -f1 >> $unsorted
+elif [ -x /usr/lib/systemd/systemd-udevd ] ; then
+  ldd /usr/lib/systemd/systemd-udevd 2>/dev/null | sed "s/\t//" | cut -d " " -f1 >> $unsorted
+fi
+
+# Add module symlinks
+if [ -n "$KERNEL_VERSION" ] && [ -x /usr/bin/kmod ] ; then
+  ln -s kmod $WDIR/usr/bin/lsmod
+  ln -s kmod $WDIR/usr/bin/insmod
+fi
+
+# Install libraries
+sort $unsorted | uniq | while read library ; do
+  if [[ "$library" == linux-vdso.so.1 ]] ||
+     [[ "$library" == linux-gate.so.1 ]] ||
+     [[ "$library" == libsystemd-shared* ]]; then
+    continue
+  fi
+  copy $library lib
+done
+
+# Copy udev directories
+if [ -d /usr/lib/udev ]; then
+  cp -a /usr/lib/udev $WDIR/usr/lib
+fi
+if [ -d /lib/udev ]; then
+  cp -a /lib/udev $WDIR/lib
+fi
+
+# Install kernel modules if requested
+if [ -n "$KERNEL_VERSION" ]; then
+  echo "Including modules for $KERNEL_VERSION..."
+  
+  # Copy all necessary modules
+  find \
+     /lib/modules/$KERNEL_VERSION/kernel/{crypto,fs,lib}                          \
+     /lib/modules/$KERNEL_VERSION/kernel/drivers/{block,md,cdrom,gpu,video} \
+     /lib/modules/$KERNEL_VERSION/kernel/drivers/{scsi,net,virtio}     \
+     /lib/modules/$KERNEL_VERSION/kernel/drivers/usb/{host,storage}               \
+     /lib/modules/$KERNEL_VERSION/kernel/drivers/net/wireless \
+     /lib/modules/$KERNEL_VERSION/kernel/net/wireless \
+     -type f 2> /dev/null | cpio --make-directories -p --quiet $WDIR  
+
+  # Copy module metadata
+  cp /lib/modules/$KERNEL_VERSION/modules.{builtin,order} \
+            $WDIR/usr/lib/modules/$KERNEL_VERSION 2>/dev/null || true
+
+  
+  if [ -f /lib/modules/$KERNEL_VERSION/modules.builtin.modinfo ]; then
+    cp /lib/modules/$KERNEL_VERSION/modules.builtin.modinfo \
+            $WDIR/usr/lib/modules/$KERNEL_VERSION
+  fi
+
+  # Generate dependencies
+  depmod -b $WDIR $KERNEL_VERSION
+fi
+
+# Create initramfs
+( cd $WDIR ; find . | cpio -o -H newc --quiet | gzip -9 ) > $INITRAMFS_FILE
+
+# Cleanup
+rm -rf $WDIR $unsorted
+printf "done.\n"
