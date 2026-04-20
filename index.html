@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta
+      name="description"
+      content="Lynx Saiko - Lead Developer of LeakOS. Cybersecurity Enthusiast, Pentester, and Linux Architect."
+    />
+    <meta
+      name="keywords"
+      content="Lynx Saiko, LeakOS, Cybersecurity, Pentesting, Linux From Scratch, Red Teaming"
+    />
+    <meta name="author" content="Lynx Saiko" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://breachcipher.github.io" />
+    <meta
+      property="og:title"
+      content="Lynx Saiko | Cybersecurity & Linux Architect"
+    />
+    <meta
+      property="og:description"
+      content="Mengeksplorasi batas keamanan sistem dan arsitektur Linux. Pengembang utama LeakOS."
+    />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/breachcipher/breachcipher.github.io/main/assets/img/a-breach-logo2.png"
+    />
+    <meta property="og:image:width" content="1500" />
+    <meta property="og:image:height" content="530" />
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:url" content="https://breachcipher.github.io/" />
+    <meta
+      property="twitter:title"
+      content="Lynx Saiko | Cybersecurity & Linux Architect"
+    />
+    <meta
+      property="twitter:description"
+      content="Mengeksplorasi batas keamanan sistem dan arsitektur Linux. Pengembang utama LeakOS."
+    />
+    <meta
+      property="twitter:image"
+      content="https://raw.githubusercontent.com/breachcipher/breachcipher.github.io/main/assets/img/a-breach-logo2.png"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://raw.githubusercontent.com/breachcipher/breachcipher.github.io/main/assets/img/a-breach-logo2.png"
+    />
+    <title>Lynx Saiko - Ethical Hacking</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body data-theme="light">
+    <div id="particles-js"></div>
+
+    <nav class="main-navbar">
+      <a href="#">
+        <span>Breach</span>
+        <span style="opacity: 0.7">Cipher</span>
+      </a>
+
+      <div class="nav-actions d-flex align-items-center gap-2">
+        <!-- TOMBOL DARK MODE DI SAMPING TRANSLATE -->
+        <button class="theme-nav-btn" onclick="toggleTheme()">
+          <i
+            class="bi bi-sun-fill"
+            id="themeIconNav"
+            style="font-size: 1.2rem"
+          ></i>
+        </button>
+
+        <div class="dropdown">
+          <button
+            class="translate-btn dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="bi bi-globe"></i>
+            <span class="lang-text" id="selectedLang">ID</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end lang-dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#" onclick="changeLang('ID')">
+                Indonesia
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="changeLang('EN')">
+                English
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="changeLang('CN')">
+                Chinese
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="changeLang('PH')">
+                Philippines
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="changeLang('KR')">
+                Korea
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="changeLang('JP')">
+                Japanese
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#" onclick="changeLang('RU')">
+                Russian
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <button class="nav-toggle-btn" onclick="toggleMenu()">
+          <i class="bi bi-list" id="menuIcon"></i>
+        </button>
+      </div>
+    </nav>
+
+    <section
+      class="hero-section"
+      onclick="openWallpaper(this)"
+      id="home-section"
+    ></section>
+
+    <div class="profile-wrapper">
+      <img src="assets/img/arey.jpg" alt="Profile" class="profile-img" />
+      <div class="profile-info mt-2">
+        <div class="d-flex align-items-center gap-3">
+          <h2 class="profile-name">Lynx Saiko</h2>
+
+          <div class="social-links">
+            <a href="#"><i class="bi bi-github"></i></a>
+            <a href="#"><i class="bi bi-linkedin"></i></a>
+            <a href="https://t.me/CipherXchacha">
+              <i class="bi bi-telegram"></i>
+            </a>
+            <a href="#"><i class="bi bi-twitter-x"></i></a>
+          </div>
+        </div>
+        <div class="d-flex align-items-center flex-wrap gap-3 mt-3">
+          <div class="status-badge">
+            <div class="dot-blue"></div>
+            <span id="typing-text" class="status-text typing-cursor"></span>
+          </div>
+          <div class="d-flex flex-column gap-2 mt-3">
+            <div class="system-status d-flex flex-wrap gap-2 mt-2">
+              <span class="cyber-badge">
+                <i class="bi bi-controller" style="font-size: 20px"></i>
+              </span>
+              <span class="cyber-badge">
+                <i class="bi bi-emoji-smile" style="font-size: 18px"></i>
+              </span>
+
+              <span class="cyber-badge">
+                <i class="bi bi-book-half" style="font-size: 18px"></i>
+              </span>
+            </div>
+            <div class="d-flex gap-2">
+              <span
+                class="cert-badge-mini"
+                data-bs-toggle="collapse"
+                data-bs-target="#detailOSCPT"
+              >
+                Network Pentesting
+              </span>
+              <span
+                class="cert-badge-mini"
+                data-bs-toggle="collapse"
+                data-bs-target="#detailCRTPT"
+              >
+                Web Pentesting
+              </span>
+            </div>
+
+            <div
+              class="collapse"
+              id="detailOSCP"
+              data-bs-parent=".profile-info"
+            >
+              <div class="cert-detail-card">
+                <img
+                  src="assets/img/a-cert-network.jpg"
+                  alt="OSCP Logo"
+                  class="cert-detail-img"
+                />
+                <div class="cert-info-text">
+                  <span class="cert-info-title">> Network Pentesting</span>
+                  <p class="cert-info-desc mb-0">
+                    Fokus pada penetration testing metodologi dan hands-on lab
+                    eksploitasi sistem Windows & Linux.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="collapse"
+              id="detailCRTP"
+              data-bs-parent=".profile-info"
+            >
+              <div class="cert-detail-card">
+                <img
+                  src="assets/img/crtp-logo.png"
+                  alt="CRTP Logo"
+                  class="cert-detail-img"
+                />
+                <div class="cert-info-text">
+                  <span class="cert-info-title">
+                    > CERTIFIED RED TEAM PROFESSIONAL
+                  </span>
+                  <p class="cert-info-desc mb-0">
+                    Spesialisasi dalam Active Directory security, enumerasi, dan
+                    privilege escalation di lingkungan Windows Domain.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="about-section mt-4"
+      style="max-width: 800px; margin: 0 auto; padding: 0 20px"
+    >
+      <div
+        class="about-text"
+        style="
+          background: rgba(0, 212, 255, 0.02);
+          border: 1px solid rgba(0, 212, 255, 0.1);
+          clip-path: none;
+          border-left: 3px solid var(--accent-color);
+        "
+      >
+        <div
+          style="
+            text-align: left;
+            font-family: &quot;Courier New&quot;, monospace;
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            opacity: 0.8;
+          "
+        >
+          [ ANALYZING_SCANNING: LYNX_SAIKO ]
+        </div>
+
+        <p
+          style="
+            text-align: left;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            margin-bottom: 0;
+          "
+        >
+          Seorang pengembang mandiri yang berfokus pada arsitektur
+          <span style="color: var(--accent-color); font-weight: bold">
+            Linux
+          </span>
+          dan keamanan ofensif. Aktif membangun
+          <span style="color: var(--accent-color); font-weight: bold">
+            LeakOS
+          </span>
+          , sebuah distribusi berbasis Linux From Scratch (LFS) V1.0. Saat ini
+          mendalami pengembangan framework eksploitasi dan otomatisasi sistem
+          keamanan.
+        </p>
+
+        <div
+          style="
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            padding-top: 15px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          "
+        >
+          <div>
+            <span style="opacity: 0.5">Role:</span>
+            N0ob
+          </div>
+          <div>
+            <span style="opacity: 0.5">Focus:</span>
+            Red Teaming
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="arsenal-section"
+      class="container mt-5"
+      style="max-width: 900px; position: relative; z-index: 10"
+    >
+      <div class="skill-card">
+        <h5
+          class="mb-4 text-center arsenal"
+          style="color: var(--accent-color); font-weight: bold"
+        >
+          ARSENAL & SKILLS
+        </h5>
+
+        <ul
+          class="nav nav-pills mb-4 justify-content-center"
+          id="skillTab"
+          role="tablist"
+        >
+          <li class="nav-item">
+            <button
+              class="nav-link active"
+              data-bs-toggle="pill"
+              data-bs-target="#dev"
+            >
+              Developer
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link"
+              data-bs-toggle="pill"
+              data-bs-target="#sec"
+            >
+              Security
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link"
+              data-bs-toggle="pill"
+              data-bs-target="#sys"
+            >
+              System
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              class="nav-link"
+              data-bs-toggle="pill"
+              data-bs-target="#tech"
+            >
+              Others
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="dev">
+            <div class="skill-grid">
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-php.png"
+                  alt="Php"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">Php</span>
+              </div>
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-python.png"
+                  alt="Python"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">Python</span>
+              </div>
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-cpp.png"
+                  alt="c++"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">C++</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="sec">
+            <div class="skill-grid">
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-pentesting.png"
+                  alt="Pentest"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">Pentest</span>
+              </div>
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-bug.png"
+                  alt="Web Sec"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">Web Sec</span>
+              </div>
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-terminal.png"
+                  alt="Forensic"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">Exploit Development</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="sys">
+            <div class="skill-grid">
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-lfs.jpeg"
+                  alt="Linux"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">Linux LFS</span>
+              </div>
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-windows.png"
+                  alt="Kernel"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">Windows</span>
+              </div>
+              <div class="skill-item-card">
+                <img
+                  src="assets/img/a-kali.png"
+                  alt="Kali"
+                  class="skill-icon-img"
+                />
+                <span class="skill-name">Kali Linux</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="tech">
+            <div class="skill-scroll-wrapper">
+              <div class="skill-grid skill-grid-scrollable">
+                <div class="skill-item-card">
+                  <img
+                    src="assets/img/a-mysql.png"
+                    alt="mysql"
+                    class="skill-icon-img"
+                  />
+                  <span class="skill-name">MySQL</span>
+                </div>
+
+                <div class="skill-item-card">
+                  <img
+                    src="assets/img/a-postgres.png"
+                    alt="postgresql"
+                    class="skill-icon-img"
+                  />
+                  <span class="skill-name">Postgres</span>
+                </div>
+
+                <div class="skill-item-card">
+                  <img
+                    src="assets/img/a-node.png"
+                    alt="nodejs"
+                    class="skill-icon-img"
+                  />
+                  <span class="skill-name">NodeJS</span>
+                </div>
+
+                <div class="skill-item-card">
+                  <img
+                    src="assets/img/a-docker.png"
+                    alt="docker"
+                    class="skill-icon-img"
+                  />
+                  <span class="skill-name">Docker</span>
+                </div>
+
+                <div class="skill-item-card">
+                  <img
+                    src="assets/img/a-git.png"
+                    alt="git"
+                    class="skill-icon-img"
+                  />
+                  <span class="skill-name">Git</span>
+                </div>
+
+                <div class="skill-item-card">
+                  <img
+                    src="assets/img/a-javascript.png"
+                    alt="mongodb"
+                    class="skill-icon-img"
+                  />
+                  <span class="skill-name">Javascript</span>
+                </div>
+
+                <div class="skill-item-card">
+                  <img
+                    src="assets/img/a-wp.png"
+                    alt="wordpress"
+                    class="skill-icon-img"
+                  />
+                  <span class="skill-name">Wordpress</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="arsenal-section" class="mt-5">
+          <h2 class="section-title">
+            <i class="bi bi-shield-slash me-2"></i>
+            Red Teaming Arsenal
+          </h2>
+
+          <div class="arsenal-grid">
+            <div class="arsenal-item">
+              <i class="bi bi-terminal arsenal-icon"></i>
+              <span class="arsenal-name">Metasploit</span>
+            </div>
+
+            <div class="arsenal-item">
+              <i class="bi bi-radar arsenal-icon"></i>
+              <span class="arsenal-name">Nmap</span>
+            </div>
+
+            <div class="arsenal-item">
+              <i class="bi bi-bug arsenal-icon"></i>
+              <span class="arsenal-name">Burp Suite</span>
+            </div>
+
+            <div class="arsenal-item">
+              <i class="bi bi-database-exclamation arsenal-icon"></i>
+              <span class="arsenal-name">SQLmap</span>
+            </div>
+
+            <div class="arsenal-item">
+              <i class="bi bi-activity arsenal-icon"></i>
+              <span class="arsenal-name">Wireshark</span>
+            </div>
+
+            <div class="arsenal-item">
+              <i class="bi bi-unlock arsenal-icon"></i>
+              <span class="arsenal-name">
+                John The
+                <br />
+                Ripper
+              </span>
+            </div>
+            <div class="arsenal-item">
+              <i class="bi bi-shield-lock arsenal-icon"></i>
+              <span class="arsenal-name">Cobalt Strike</span>
+            </div>
+            <div class="arsenal-item">
+              <i class="bi bi-incognito arsenal-icon"></i>
+              <span class="arsenal-name">Havoc C2</span>
+            </div>
+            <div class="arsenal-item">
+              <i class="bi bi-code-slash arsenal-icon"></i>
+              <span class="arsenal-name">Custom C2</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="section-title"># Log Sistem</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-date">[ 03 — PRESENT ]</div>
+              <div class="timeline-role">> _ROOT@127.0.0.1: ACCESS_GRANTED</div>
+              <p class="mb-0 text-secondary small">
+                Fokus pada advanced evasion, custom C2 development, dan bug
+                bounty hunting, malware.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-date">[ 02 ]</div>
+              <div class="timeline-role">> _SYSTEM@LEAKOS: KERNEL_EXPLOIT</div>
+              <p class="mb-0 text-secondary small">
+                Mengembangkan tools otomatisasi untuk penetration testing dan
+                research vulnerability.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-content">
+              <div class="timeline-date">[ 01 ]</div>
+              <div class="timeline-role">> _USER@LEARN: PHASE_WHITEHAT</div>
+              <p class="mb-0 text-secondary small">
+                Belajar fundamental cybersecurity, network security, dan Linux
+                system administration.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="project-section-container">
+      <h3 class="section-title-center" id="projects-section"># Projects</h3>
+
+      <div class="project-grid">
+        <div class="project-card">
+          <div class="project-img-wrapper">
+            <img
+              src="assets/img/a-github.png"
+              onerror="
+                this.src =
+                  'https://placehold.co/600x400/111/00d4ff?text=Lazy Framework'
+              "
+              alt="Project 1"
+            />
+          </div>
+          <div class="project-content">
+            <span class="project-tag">Automation</span>
+            <h4 class="project-title">Lazy Framework</h4>
+            <p class="project-desc">
+              Pemindai kerentanan otomatis yang dirancang untuk audit jaringan
+              lokal dan penemuan port.
+            </p>
+          </div>
+          <div class="project-footer">
+            <a href="" class="btn-project">
+              <i class="bi bi-github"></i>
+              Source
+            </a>
+            <a href="#" class="btn-project">
+              <i class="bi bi-eye"></i>
+              Demo
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-img-wrapper">
+            <img
+              src="assets/img/a-lfs-remastering.jpeg"
+              onerror="
+                this.src =
+                  'https://placehold.co/600x400/111/00d4ff?text=LeakOS Remastering'
+              "
+              alt="Project 2"
+            />
+          </div>
+          <div class="project-content">
+            <span class="project-tag">Remastering</span>
+            <h4 class="project-title">LFS Remastering</h4>
+            <p class="project-desc">
+              Proyek ini memodifikasi Linux From Scratch (LFS) untuk menciptakan
+              sistem Linux kustom yang ringan. Fokusnya adalah membangun dan
+              mengkonfigurasi kernel, toolchain, dan pustaka penting untuk
+              memenuhi kebutuhan spesifik, sehingga menghasilkan lingkungan
+              Linux yang lebih optimal dan sesuai kebutuhan.
+            </p>
+          </div>
+          <div class="project-footer">
+            <a href="" class="btn-project">
+              <i class="bi bi-github"></i>
+              Source
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-img-wrapper">
+            <img
+              src="assets/img/a-github.png"
+              onerror="
+                this.src = 'https://placehold.co/600x400/111/00d4ff?text='
+              "
+            />
+          </div>
+          <div class="project-content">
+            <span class="project-tag">Ransomware</span>
+            <h4 class="project-title">Lazy Ransomware</h4>
+            <p class="project-desc">
+              Lazy Encryptor menggunakan metode Hybrid Encryption RSA-2048 +
+              AES-256. File korban dienkripsi dengan AES-256, sedangkan kunci
+              AES itu sendiri dilindungi dengan RSA public key. Hanya pemilik
+              private key yang dapat memulihkan akses ke file korban.
+            </p>
+          </div>
+          <div class="project-footer">
+            <a href="" class="btn-project">
+              <i class="bi bi-github"></i>
+              Source
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-img-wrapper">
+            <img
+              src="assets/img/a-leakos.png"
+              onerror="
+                this.src = 'https://placehold.co/600x400/111/00d4ff?text=a'
+              "
+            />
+          </div>
+          <div class="project-content">
+            <span class="project-tag">LFS</span>
+            <h4 class="project-title">LeakOS Linux</h4>
+            <p class="project-desc">
+              LeakOS adalah distribusi pengujian penetrasi yang dibuat khusus
+              berdasarkan prinsip-prinsip Linux From Scratch (LFS). LeakOS
+              memungkinkan pengguna untuk membangun dan menyesuaikan setiap
+              aspek sistem dari awal, memastikan kontrol dan fleksibilitas
+              maksimal. LeakOS menyediakan lingkungan minimal namun ampuh, yang
+              secara khusus dirancang untuk peneliti keamanan dan peretas etis.
+            </p>
+          </div>
+          <div class="project-footer">
+            <a href="" class="btn-project">
+              <i class="bi bi-eye"></i>
+              View in Site
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="menu-overlay" id="sideMenu">
+      <div id="mainPage" class="page-content">
+        <div class="list-group list-group-flush">
+          <a
+            href="javascript:void(0)"
+            onclick="navigateTo('learnPage')"
+            class="menu-item"
+          >
+            <span>Learn</span>
+            <i class="bi bi-chevron-right"></i>
+          </a>
+          <a href="#home-section" onclick="toggleMenu()" class="menu-item">
+            <span>Home</span>
+            <i class="bi bi-chevron-right"></i>
+          </a>
+
+          <a href="#arsenal-section" onclick="toggleMenu()" class="menu-item">
+            <span>Arsenal</span>
+            <i class="bi bi-chevron-right"></i>
+          </a>
+
+          <a href="#projects-section" onclick="toggleMenu()" class="menu-item">
+            <span>Projects</span>
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div
+        id="learnPage"
+        class="page-content"
+        style="display: none; opacity: 0"
+      >
+        <div class="p-3 border-bottom d-flex align-items-center gap-3">
+          <i
+            class="bi bi-arrow-left fs-4"
+            style="cursor: pointer; color: var(--accent-color)"
+            onclick="navigateTo('mainPage')"
+          ></i>
+          <span class="fs-4 fw-bold" style="color: var(--menu-text)">
+            Learn
+          </span>
+        </div>
+        <div class="course-card">
+          <div class="course-name">OSCP+</div>
+          <div class="course-desc">PEN-200: Kali Linux Penetration Testing</div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="wallpaperModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+          <div class="modal-body p-0 text-center position-relative">
+            <button
+              type="button"
+              class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+              data-bs-dismiss="modal"
+            ></button>
+            <img
+              src=""
+              id="wallpaperPreview"
+              class="img-fluid rounded shadow-lg"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="main-footer">
+      <div class="footer-line"></div>
+      <p class="footer-text">&copy; 2026 Breach Cipher • ALL RIGHTS RESERVED</p>
+      <div class="footer-version">
+        SYSTEM_STATUS:
+        <span style="color: #00ff00">ONLINE</span>
+        | V.1.0.4-STABLE
+      </div>
+    </footer>
+
+    <div id="loading-screen">
+      <div class="glitch-wrapper">
+        <h1 class="glitch-logo" data-text="BREACH CIPHER">BREACH CIPHER</h1>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      function initParticles() {
+        const isDark = document.body.getAttribute("data-theme") === "dark";
+        const color = isDark ? "#00d4ff" : "#005b96";
+        particlesJS("particles-js", {
+          particles: {
+            number: { value: 50, density: { enable: true, value_area: 800 } },
+            color: { value: color },
+            shape: { type: "circle" },
+            opacity: { value: 0.4 },
+            size: { value: 3 },
+            line_linked: {
+              enable: true,
+              distance: 150,
+              color: color,
+              opacity: 0.2,
+              width: 1,
+            },
+            move: { enable: true, speed: 1.5 },
+          },
+          interactivity: {
+            events: { onhover: { enable: true, mode: "repulse" } },
+          },
+          retina_detect: true,
+        });
+      }
+
+      function toggleMenu() {
+        const sideMenu = document.getElementById("sideMenu");
+        const icon = document.getElementById("menuIcon");
+        sideMenu.classList.toggle("active");
+
+        if (sideMenu.classList.contains("active")) {
+          icon.classList.remove("bi-list");
+          icon.classList.add("bi-x-lg");
+          navigateTo("mainPage");
+        } else {
+          icon.classList.remove("bi-x-lg");
+          icon.classList.add("bi-list");
+        }
+      }
+
+      function navigateTo(targetId) {
+        document.querySelectorAll(".page-content").forEach((p) => {
+          p.style.display = "none";
+          p.style.opacity = "0";
+        });
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.style.display = "block";
+          setTimeout(() => (target.style.opacity = "1"), 10);
+        }
+      }
+
+      function toggleTheme() {
+        const body = document.body;
+        const themeIcon = document.getElementById("themeIconNav");
+        const currentTheme = body.getAttribute("data-theme");
+
+        if (currentTheme === "light") {
+          body.setAttribute("data-theme", "dark");
+          themeIcon.classList.remove("bi-sun-fill");
+          themeIcon.classList.add("bi-moon-stars-fill");
+          showNotification("Dark Mode Activated");
+        } else {
+          body.setAttribute("data-theme", "light");
+          themeIcon.classList.remove("bi-moon-stars-fill");
+          themeIcon.classList.add("bi-sun-fill");
+          showNotification("Light Mode Activated");
+        }
+
+        initParticles();
+      }
+
+      function openWallpaper(element) {
+        const bg = window.getComputedStyle(element).backgroundImage;
+        const urlMatch = bg.match(/url\(['"]?(.*?)['"]?\)/i);
+        if (urlMatch) {
+          document.getElementById("wallpaperPreview").src = urlMatch[1];
+          new bootstrap.Modal(document.getElementById("wallpaperModal")).show();
+        }
+      }
+
+      window.onload = initParticles;
+    </script>
+
+    <script>
+      const text = "Ethical Hacking | Linux Enthusiast";
+      const typingElement = document.getElementById("typing-text");
+      let index = 0;
+
+      function typeEffect() {
+        if (index < text.length) {
+          typingElement.innerHTML += text.charAt(index);
+          index++;
+          setTimeout(typeEffect, 100);
+        } else {
+          typingElement.classList.remove("typing-cursor");
+          typingElement.classList.add("blink-final");
+        }
+      }
+
+      window.addEventListener("load", typeEffect);
+    </script>
+
+    <script>
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          const loader = document.getElementById("loading-screen");
+          loader.classList.add("loaded");
+          setTimeout(typeEffect, 1500);
+        }, 1500);
+      });
+    </script>
+    <script>
+      // HAPUS atau KOMENTARI fungsi triggerJumbotronGlitch yang lama
+      // function triggerJumbotronGlitch() { ... }
+
+      // FUNGSI SCANNING BARU
+      function triggerScanEffect() {
+        const hero = document.querySelector(".hero-section");
+
+        // Cegah jika sedang scanning
+        if (hero.classList.contains("scan-active")) return;
+
+        // Aktifkan efek scanning
+        hero.classList.add("scan-active");
+
+        // Matikan efek setelah animasi selesai
+        setTimeout(() => {
+          hero.classList.remove("scan-active");
+        }, 1200);
+      }
+
+      // Scanning muncul secara RANDOM (6-15 detik sekali)
+      function startRandomScan() {
+        const minDelay = 6000;
+        const maxDelay = 15000;
+
+        function scheduleScan() {
+          const delay = Math.random() * (maxDelay - minDelay) + minDelay;
+          setTimeout(() => {
+            triggerScanEffect();
+            scheduleScan();
+          }, delay);
+        }
+
+        scheduleScan();
+      }
+
+      // Mulai scanning random setelah halaman dimuat
+      window.addEventListener("load", () => {
+        startRandomScan();
+        // Scanning pertama kali setelah 1.5 detik
+        setTimeout(() => {
+          triggerScanEffect();
+        }, 1500);
+      });
+
+      // Scanning saat jumbotron diklik
+      document.querySelector(".hero-section")?.addEventListener("click", () => {
+        triggerScanEffect();
+      });
+
+      setInterval(() => {
+        const chance = Math.random();
+        if (chance > 0.5) {
+          triggerJumbotronGlitch();
+        }
+      }, 5000);
+    </script>
+
+    <script>
+      const TRANSLATE_API =
+        "https://translate.googleapis.com/translate_a/single";
+
+      async function translateFullPage(targetLang) {
+        const langMap = {
+          ID: "id",
+          EN: "en",
+          CN: "zh-CN",
+          PH: "tl",
+          KR: "ko",
+          JP: "ja",
+          RU: "ru",
+        };
+
+        const targetCode = langMap[targetLang];
+        if (!targetCode) return;
+
+        const langDisplay = document.getElementById("selectedLang");
+        if (langDisplay) langDisplay.innerText = "...";
+
+        const textSelectors = [
+          ".profile-name",
+          ".status-text",
+          ".about-text",
+          ".section-title",
+          ".section-title-center",
+          ".timeline-role",
+          ".timeline-date",
+          ".timeline-content p",
+          ".project-title",
+          ".project-desc",
+          ".project-tag",
+          ".footer-text",
+          ".decrypt",
+          ".skill-name",
+          ".cert-badge-mini",
+          ".nav-link",
+          ".menu-item",
+          ".cert-info-title",
+          ".cert-info-desc",
+          ".arsenal",
+          ".btn-project",
+        ];
+
+        let elements = [];
+        textSelectors.forEach((selector) => {
+          elements.push(...document.querySelectorAll(selector));
+        });
+        elements = [...new Set(elements)];
+
+        for (let el of elements) {
+          if (!el.hasAttribute("data-original")) {
+            el.setAttribute("data-original", el.innerText.trim());
+          }
+
+          const originalText = el.getAttribute("data-original");
+
+          if (targetLang === "ID") {
+            el.innerText = originalText;
+            el.removeAttribute("data-current-lang");
+            continue;
+          }
+
+          if (el.getAttribute("data-current-lang") === targetLang) continue;
+
+          if (originalText.length < 2 || /^[0-9\s\W]+$/.test(originalText))
+            continue;
+
+          try {
+            const url = `${TRANSLATE_API}?client=gtx&sl=auto&tl=${targetCode}&dt=t&q=${encodeURIComponent(originalText)}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data && data[0]) {
+              let translated = data[0].map((item) => item[0]).join("");
+              el.innerText = translated;
+              el.setAttribute("data-current-lang", targetLang);
+            }
+          } catch (error) {
+            console.error("Error:", error);
+          }
+
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        if (langDisplay) langDisplay.innerText = targetLang.toUpperCase();
+
+        showNotification(`SYSTEM DECRYPTED: ${targetLang}`);
+      }
+
+      function showNotification(msg) {
+        const oldNotif = document.querySelector(".cyber-notif");
+        if (oldNotif) oldNotif.remove();
+
+        const notif = document.createElement("div");
+        notif.className = "cyber-notif";
+        notif.textContent = msg;
+
+        notif.style.cssText = `
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: rgba(0, 212, 255, 0.95);
+  color: #000;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 100000;
+  /* Efek Potongan Sudut Parrot OS */
+  clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 60%);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+  border-left: 5px solid #00d4ff;
+  pointer-events: none;
+  animation: slideIn 0.5s ease, fadeOut 1s ease 2.5s forwards;
+  `;
+
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 3500);
+      }
+
+      if (!document.getElementById("notif-styles")) {
+        const style = document.createElement("style");
+        style.id = "notif-styles";
+        style.textContent = `
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
+  `;
+        document.head.appendChild(style);
+      }
+
+      function changeLang(langCode) {
+        translateFullPage(langCode);
+      }
+    </script>
+  </body>
+</html>
